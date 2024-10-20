@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse  # JSONレスポンスを返すため
 from fastapi.middleware.cors import CORSMiddleware  # CORSミドルウェアをインポート
 import mysql.connector  # MySQLデータベースとの接続を行うためのモジュールをインポート
 from mysql.connector import errorcode  # MySQLエラーコードの管理モジュールをインポート
+import OS
 
 # FastAPIアプリケーションの初期化
 app = FastAPI()
@@ -19,12 +20,12 @@ app.add_middleware(
 
 # データベース接続情報の設定（接続先、ユーザー名、パスワード、データベース名、SSLの設定）
 config = {
-    'host': 'tech0-gen-7-step4-studentwebapp-test.mysql.database.azure.com',  # MySQLホストのアドレス
-    'user': 'tech0gen7student',  # MySQLユーザー名
-    'password': 'F4XyhpicGw6P',  # MySQLユーザーのパスワード（実際のパスワードに置き換えが必要）
-    'database': 'legotest',  # 接続するデータベースの名前
-    'client_flags': [mysql.connector.ClientFlag.SSL],  # SSLを使用して接続する設定
-    'ssl_ca': '/home/site/certificates/DigiCertGlobalRootCA.crt.pem'  # SSL証明書のパス
+    'host': os.getenv('DB_HOST'),
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD'),
+    'database': os.getenv('DB_NAME'),
+    'client_flags': [mysql.connector.ClientFlag.SSL],
+    'ssl_ca': '/home/site/certificates/DigiCertGlobalRootCA.crt.pem'
 }
 
 # データベース接続を行い、ユーザー情報を取得する関数
@@ -90,9 +91,3 @@ async def login(request: Request):
         # 認証失敗の場合、エラーメッセージを含むJSONレスポンスと
         # HTTP status code 401（Unauthorized）を返します
         raise HTTPException(status_code=401, detail="認証失敗")
-
-# メイン処理
-if __name__ == '__main__':
-    import uvicorn  # Uvicornサーバーをインポート
-    # FastAPIアプリケーションをホスト'0.0.0.0'、ポート'8000'で実行
-    uvicorn.run(app, host="0.0.0.0", port=8000)
